@@ -6,11 +6,11 @@ import java.lang.Exception;
 public class Chess {
 
 	/**
-	 * ChessException: An exception meant to indicate a chess logic error has occured
+	 * ChessError: An error meant to indicate a chess logic error has occured
 	 */
-	public static class ChessException extends Exception {
+	public static class ChessError extends Error {
 	
-		public ChessException(String message) {
+		public ChessError(String message) {
 			super(message);
 		}
 

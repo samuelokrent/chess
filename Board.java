@@ -120,13 +120,19 @@ public class Board {
 	public String toString() {
 		String out = "\n";
 		for(int rowIdx = Chess.NUM_ROWS - 1; rowIdx >= 0; rowIdx--) {
+			out += rowIdx + " ";
 			Spot[] row = spots[rowIdx];
 			for(int col = 0; col < Chess.NUM_COLS; col++) {
 				out += row[col].displayString();
 			}
 			out += "\n";
 		}
-		return out + "\n";
+
+		out += "  ";
+		for(int col = 0; col < Chess.NUM_COLS; col++) {
+			out += Piece.formatString("" + col);
+		}
+		return out + "\n\n";
 	}
 
 }

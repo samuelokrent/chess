@@ -21,14 +21,15 @@ public class Pawn extends Piece {
 
 		// One spot forward
 		Board.Spot oneForward = getSpotWithOffset(forward, 0);
-		if(isAvailableSpot(oneForward, regardlessOfKing)) {
+		if(isAvailableSpot(oneForward, regardlessOfKing) && !oneForward.isOccupied()) {
 			possibleMoves.add(oneForward);
-		}
-		
-		// Two spots forward, only if this is the first move
-		Board.Spot twoForward = getSpotWithOffset(2 * forward, 0);
-		if(!hasMoved && isAvailableSpot(twoForward, regardlessOfKing)) {
-			possibleMoves.add(twoForward);
+			
+			// Two spots forward, only if this is the first move
+			Board.Spot twoForward = getSpotWithOffset(2 * forward, 0);
+			if(!hasMoved && isAvailableSpot(twoForward, regardlessOfKing) && !twoForward.isOccupied()) {
+				possibleMoves.add(twoForward);
+			}
+			
 		}
 
 		// Diagonal attack moves

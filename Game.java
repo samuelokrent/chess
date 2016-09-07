@@ -7,9 +7,24 @@ import java.lang.reflect.Constructor;
 
 /**
  * Game: A class representing a chess game
+ *
+ * To initialize and play a game:
+ *
+ * Create a new Game object, and call startGame() on it
+ * Before each turn, call startNewTurn()
+ * To take a turn, call movePieceTo()
+ * endGame() is called when the game is over
  */
 
 public class Game {
+
+	/**
+	 * GameEventListener: An interface that must be implemented in order to receive
+	 * notifications of game events
+	 */
+	public static interface GameEventListener {
+		void onGameEnded(Chess.Color winner);
+	}
 
 	// Keeps track of which side's turn it is
 	private Chess.Color turnColor;
@@ -19,6 +34,9 @@ public class Game {
 
 	// A collection of all in-play game pieces that maps from color to a list of pieces
 	private Map<Chess.Color, List<Piece>> pieces = new HashMap<Chess.Color, List<Piece>>();;
+
+	// The listener for game events
+	private GameEventListener eventListener;
 
 	/**
 	 * Initializes a new chess game
@@ -40,8 +58,22 @@ public class Game {
 		}
 	}
 
+	/**
+	 * Registers an event listener
+	 */
+	public void setGameEventListener(GameEventListener eventListener) {
+		this.eventListener = eventListener;
+	}
+
 	public Board getBoard() {
 		return this.board;
+	}
+
+	/**
+	 * @returns A list of in-play pieces of the given color
+	 */
+	public List<Piece> getPieces(Chess.Color sideColor) {
+		return pieces.get(sideColor);
 	}
 
 	public Chess.Color getTurnColor() {
@@ -68,7 +100,9 @@ public class Game {
 	 * Does whatever is necessary to end the game
 	 */
 	public void endGame(Chess.Color winner) {
-		
+		if(eventListener != null) {
+			eventListener.onGameEnded(winner);
+		}
 	}
 
 	/**
@@ -92,6 +126,10 @@ public class Game {
 	public boolean isInStalemate(Chess.Color color) {
 		if(isInCheck(color)) return false;
 
+		// Check if only kings left
+		if(pieces.get(Chess.Color.BLACK).size() == 1 &&
+			pieces.get(Chess.Color.WHITE).size() == 1)) return true;
+
 		// Check if any piece has a move
 		for(Piece piece : pieces.get(color)) {
 			if(!piece.getPossibleMoves().isEmpty()) return false;
@@ -107,17 +145,17 @@ public class Game {
 	 * @param col The col to move to
 	 * @returns The piece captured by the executed move, or null if the space was unoccupied
 	 */
-	public Piece movePieceTo(Piece piece, int row, int col) throws Chess.ChessException {
+	public Piece movePieceTo(Piece piece, Board.Spot spot) throws Chess.ChessError {
 		// Check if move is played in turn, on an in-play piece, to a valid spot
-		if(!(piece.isInPlay() && board.isValidSpot(row, col) &&
+		if(!(piece.isInPlay() && board.isValidSpot(spot.getRow(), spot.getCol()) &&
 			(piece.getColor() == turnColor)))
-				throw new Chess.ChessException("Attempt to move piece " + piece.toString() + " to (" + col + ", " + row + ") was invalid");
+				throw new Chess.ChessError("Attempt to move piece " + piece.toString() + " to " + spot.toString() + " was invalid");
 
-		Piece capturedPiece = board.getPieceAt(row, col);
+		Piece capturedPiece = spot.getPiece();
 		if(capturedPiece != null)
 			removePieceFromPlay(capturedPiece);
 
-		piece.moveTo(board.getSpot(row, col));
+		piece.moveTo(spot);
 
 		return capturedPiece;
 	}
