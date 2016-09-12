@@ -2,3 +2,6 @@
 html
 latex
 .svn
+*.class
+*/*.class
+*/*/*.class
