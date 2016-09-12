@@ -1,3 +1,5 @@
+package chess;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -13,7 +15,7 @@ import java.lang.reflect.Constructor;
  * Create a new Game object, and call startGame() on it
  * Before each turn, call startNewTurn()
  * To take a turn, call movePieceTo()
- * endGame() is called when the game is over
+ * onGameEnded() is called when the game is over
  */
 
 public class Game {
@@ -33,7 +35,7 @@ public class Game {
 	private Board board;
 
 	// A collection of all in-play game pieces that maps from color to a list of pieces
-	private Map<Chess.Color, List<Piece>> pieces = new HashMap<Chess.Color, List<Piece>>();;
+	private Map<Chess.Color, List<Piece>> pieces;
 
 	// The listener for game events
 	private GameEventListener eventListener;
@@ -43,19 +45,9 @@ public class Game {
 	 */
 	public Game() {
 		this.board = new Board();
+		this.pieces = new HashMap<Chess.Color, List<Piece>>();
 		this.pieces.put(Chess.Color.WHITE, new ArrayList<Piece>());
 		this.pieces.put(Chess.Color.BLACK, new ArrayList<Piece>());
-
-		// Initialize both sides' pieces
-		for(Chess.RowConfiguration rowConfiguration : Chess.ROW_CONFIGURATIONS) {
-			int row = rowConfiguration.row;
-			Class[] pieceClasses = rowConfiguration.pieces;
-			Chess.Color sideColor = rowConfiguration.sideColor;
-
-			for(int col = 0; col < Chess.NUM_COLS; col++) {
-				addPiece(pieceClasses[col], sideColor, board.getSpot(row, col));
-			}
-		}
 	}
 
 	/**
@@ -81,6 +73,17 @@ public class Game {
 	}
 
 	public void startGame() {
+		// Initialize both sides' pieces
+		for(Chess.RowConfiguration rowConfiguration : Chess.ROW_CONFIGURATIONS) {
+			int row = rowConfiguration.row;
+			Class[] pieceClasses = rowConfiguration.pieces;
+			Chess.Color sideColor = rowConfiguration.sideColor;
+
+			for(int col = 0; col < Chess.NUM_COLS; col++) {
+				addPiece(pieceClasses[col], sideColor, board.getSpot(row, col));
+			}
+		}
+		
 		startNewTurn();
 	}
 
@@ -128,7 +131,7 @@ public class Game {
 
 		// Check if only kings left
 		if(pieces.get(Chess.Color.BLACK).size() == 1 &&
-			pieces.get(Chess.Color.WHITE).size() == 1)) return true;
+			pieces.get(Chess.Color.WHITE).size() == 1) return true;
 
 		// Check if any piece has a move
 		for(Piece piece : pieces.get(color)) {
@@ -267,20 +270,22 @@ public class Game {
 	 * @param sideColor The color of the piece to add
 	 * @param spot The location to add the piece at
 	 */
-	public void addPiece(Class pieceClass, Chess.Color sideColor, Board.Spot spot) {
+	public Piece addPiece(Class pieceClass, Chess.Color sideColor, Board.Spot spot) {
 		try {
 			Constructor pieceConstructor = pieceClass.getDeclaredConstructor(Game.class, Chess.Color.class, Board.Spot.class);
 			Piece piece = (Piece) pieceConstructor.newInstance(this, sideColor, spot);
 			pieces.get(sideColor).add(piece);
+			return piece;
 		} catch(Exception e) {
 			System.err.println("Exception instantiating piece: " + e.getMessage());
+			return null;
 		}
 	}
 
 	/**
 	 * Removes the given piece from play
 	 */
-	private void removePieceFromPlay(Piece piece) {
+	public void removePieceFromPlay(Piece piece) {
 		piece.removeFromPlay();
 		pieces.get(piece.getColor()).remove(piece);
 	}

@@ -1,3 +1,5 @@
+package chess;
+
 import java.lang.Exception;
 
 /**

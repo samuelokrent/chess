@@ -1,7 +1,10 @@
+package chess;
+
+import chess.*;
 import java.util.Random;
 import java.util.List;
 
-public class Test implements Game.GameEventListener {
+public class RandomGame implements Game.GameEventListener {
 
 	public void onGameEnded(Chess.Color winner) {
 		if(winner == null) System.out.println("Stalemate");
@@ -13,8 +16,8 @@ public class Test implements Game.GameEventListener {
 		Game game = new Game();
 		game.startGame();
 
-		Test test = new Test();
-		game.setGameEventListener(test);
+		RandomGame randGame = new RandomGame();
+		game.setGameEventListener(randGame);
 
 		System.out.println(game.getBoard().toString());
 

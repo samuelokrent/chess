@@ -1,3 +1,5 @@
+package chess;
+
 import java.util.List;
 
 /**
@@ -80,7 +82,7 @@ public abstract class Piece {
 	}
 
 	/**
-	 * Convenience method for isValidSpot(int, int)
+	 * Convenience method for isAvailableSpot(int, int)
 	 * @returns Whether the given spot is available for this piece to move into
 	 */
 	public boolean isAvailableSpot(Board.Spot spot, boolean regardlessOfKing) {

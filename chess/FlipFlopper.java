@@ -1,13 +1,21 @@
+package chess;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Queen: A class represent a Queen type chess piece
+ * FlipFlopper: A class represent a FlipFlopper type chess piece
+ * A FlipFlopper moves like a Queen on its first move, like a King on its second,
+ * and continues alternating between the two every other move.
  */
-public class Queen extends Piece {
+public class FlipFlopper extends Piece {
+	
+	// The parity of the number of moves this piece has taken
+	private int moveParity;
 
-	public Queen(Game game, Chess.Color color, Board.Spot spot) {
+	public FlipFlopper(Game game, Chess.Color color, Board.Spot spot) {
 		super(game, color, spot);
+		moveParity = 0;
 	}
 
 	public List<Board.Spot> getPossibleMoves(boolean regardlessOfKing) {
@@ -25,12 +33,15 @@ public class Queen extends Piece {
 
 				int distance = 1;
 				Board.Spot targetSpot = getSpotWithOffset(distance * verticalDir, distance * horizontalDir);
-
+				
 				while(isAvailableSpot(targetSpot, regardlessOfKing)) {
 
 					possibleMoves.add(targetSpot);
-
-					if(targetSpot.isOccupied()) {
+					
+					if(moveParity == 1) {
+						// If this is a King-like move, only explore 1 spot out
+						break;
+					} else if(targetSpot.isOccupied()) {
 						// If this spot is occupied, we can't move to a spot past it
 						break;
 					} else {
@@ -40,14 +51,21 @@ public class Queen extends Piece {
 
 				} // END WHILE
 
+
 			} // END FOR
 		} // END FOR
 
 		return possibleMoves;
 	}
+	
+	@Override
+	public void moveTo(Board.Spot spot) {
+		super.moveTo(spot);
+		moveParity = (moveParity + 1) % 2;
+	}
 
 	@Override
 	public String getType() { 
-		return "Queen";
+		return "FlipFlopper";
 	}
 }

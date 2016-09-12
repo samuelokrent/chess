@@ -1,12 +1,16 @@
+package chess;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Rook: A class represent a Rook type chess piece
+ * MegaRook: A class representing a MegaRook type chess piece
+ * MegaRooks move just like Rooks, except pieces that lie in their
+ * way do not block their paths, so they can essentially jump other pieces.
  */
-public class Rook extends Piece {
+public class MegaRook extends Piece {
 
-	public Rook(Game game, Chess.Color color, Board.Spot spot) {
+	public MegaRook(Game game, Chess.Color color, Board.Spot spot) {
 		super(game, color, spot);
 	}
 
@@ -27,17 +31,13 @@ public class Rook extends Piece {
 			int distance = 1;
 			Board.Spot targetSpot = getSpotWithOffset(distance * verticalDir, distance * horizontalDir);
 
-			while(isAvailableSpot(targetSpot, regardlessOfKing)) {
+			while(game.getBoard().isValidSpot(targetSpot.getRow(), targetSpot.getCol())) {
 
-				possibleMoves.add(targetSpot);
+				if(isAvailableSpot(targetSpot, regardlessOfKing))
+					possibleMoves.add(targetSpot);
 
-				if(targetSpot.isOccupied()) {
-					// If this spot is occupied, we can't move to a spot past it
-					break;
-				} else {
-					distance++;
-					targetSpot = getSpotWithOffset(distance * verticalDir, distance * horizontalDir);
-				}
+				distance++;
+				targetSpot = getSpotWithOffset(distance * verticalDir, distance * horizontalDir);
 
 			} // END WHILE
 
@@ -48,6 +48,6 @@ public class Rook extends Piece {
 
 	@Override
 	public String getType() {
-		return "Rook";
+		return "MegaRook";
 	}
 }

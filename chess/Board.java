@@ -1,3 +1,5 @@
+package chess;
+
 /**
  * Board: A class representing a chess board
  */
