@@ -49,5 +49,6 @@ public class Bishop extends Piece {
 	public String getType() { 
 		return "Bishop";
 	}
+	
 
 }

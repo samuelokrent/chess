@@ -117,7 +117,15 @@ public abstract class Piece {
 	public String getType() {
 		return "Piece";
 	}
-
+	
+	/**
+	 * @returns The name of this piece's icon file
+	 */
+	public String getIconFile() {
+		String fileName = color.toString() + getType() + ".png";
+		return "icons/" + fileName;
+	}
+	
 	public String toString() {
 		return formatString(color.toString() + " " + getType());
 	}
