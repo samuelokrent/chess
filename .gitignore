@@ -4,3 +4,6 @@ latex
 .svn
 ignoring.txt
 gui_test_plan
+*.class
+*/*.class
+*/*/*.class

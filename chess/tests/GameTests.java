@@ -28,6 +28,7 @@ public class GameTests {
 
 	@Test
 	public void NewGameConditions() {
+
 		Game game = new Game();
 		assertNotNull(game.getBoard());
 		
