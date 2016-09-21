@@ -38,6 +38,7 @@ public class SpotPanel extends JPanel {
 		
 		if(spot.isOccupied()) {
 			String iconFile = spot.getPiece().getIconFile();
+			
 			try {
 			    BufferedImage img = ImageIO.read(new File(iconFile));
 			    int left = (getWidth() - img.getWidth()) / 2;
@@ -46,7 +47,7 @@ public class SpotPanel extends JPanel {
 			    int bottom = top + img.getHeight();
 			    
 			    g.drawImage(img, left, top, right, bottom, 0, 0, img.getWidth(), img.getHeight(), null);
-			    System.out.println("Drew image: " + iconFile);
+			    
 			} catch (IOException e) {
 				System.err.println("COULD NOT READ FILE: " + iconFile);
 			}
