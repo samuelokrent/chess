@@ -8,9 +8,6 @@ import java.util.List;
  */
 public class Pawn extends Piece {
 
-	// Keeps track of whether or not the pawn has moved yet
-	private boolean hasMoved = false;
-
 	public Pawn(Game game, Chess.Color color, Board.Spot spot) {
 		super(game, color, spot);
 	}
@@ -28,7 +25,7 @@ public class Pawn extends Piece {
 			
 			// Two spots forward, only if this is the first move
 			Board.Spot twoForward = getSpotWithOffset(2 * forward, 0);
-			if(!hasMoved && isAvailableSpot(twoForward, regardlessOfKing) && !twoForward.isOccupied()) {
+			if(!hasMoved() && isAvailableSpot(twoForward, regardlessOfKing) && !twoForward.isOccupied()) {
 				possibleMoves.add(twoForward);
 			}
 			
@@ -44,13 +41,14 @@ public class Pawn extends Piece {
 
 		return possibleMoves;
 	}
-
-	@Override
-	public void moveTo(Board.Spot spot) {
-		super.moveTo(spot);
-
-		// Must update hasMoved if this is the first move
-		if(!hasMoved) hasMoved = true;
+	
+	public boolean hasMoved() {
+		// If a pawn is not in its starting row, then it has moved
+		if(color == Chess.Color.WHITE) {
+			return spot.getRow() != 1;
+		} else {
+			return spot.getRow() != Chess.NUM_ROWS - 2;
+		}
 	}
 
 	@Override

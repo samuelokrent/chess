@@ -5,6 +5,7 @@ import chess.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -25,10 +26,21 @@ public class SpotPanel extends JPanel {
 	// The spot this SpotPanel represents
 	private Board.Spot spot;
 	
-	public SpotPanel(Board.Spot spot) {
+	public SpotPanel(MouseListener listener) {
 		super();
-		this.spot = spot;
 		setPreferredSize(new Dimension(SIDE_LENGTH, SIDE_LENGTH));
+		setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		addMouseListener(listener);
+	}
+	
+	public Board.Spot getSpot() {
+		return spot;
+	}
+	
+	public void setSpot(Board.Spot spot) {
+		this.spot = spot;
+		revalidate();
+		repaint();
 	}
 	
 	@Override
@@ -36,7 +48,7 @@ public class SpotPanel extends JPanel {
 		g.setColor(getColor());
 		g.fillRect(0, 0, SIDE_LENGTH, SIDE_LENGTH);
 		
-		if(spot.isOccupied()) {
+		if(spot != null && spot.isOccupied()) {
 			String iconFile = spot.getPiece().getIconFile();
 			
 			try {
@@ -59,10 +71,24 @@ public class SpotPanel extends JPanel {
 	 * @returns The display color of this SpotPanel
 	 */
 	public Color getColor() {
+		if(spot == null) return WHITE;
+		
 		if(spot.getColor() == Chess.Color.BLACK)
 			return BLACK;
 		else
 			return WHITE;
+	}
+	
+	/**
+	 * Highlights this spot to indicate it was selected,
+	 * or removes highlighting if not selected
+	 */
+	public void setHighlighted(boolean selected) {
+		if(selected) {
+			setBorder(BorderFactory.createLineBorder(Color.GREEN));
+		} else {
+			setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		}
 	}
 	
 }

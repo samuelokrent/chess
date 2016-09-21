@@ -25,7 +25,9 @@ public class Game {
 	 * notifications of game events
 	 */
 	public static interface GameEventListener {
-		void onGameEnded(Chess.Color winner);
+		void onGameStarted(); // Called on game start
+		void onGameEnded(Chess.Color winner); // Called on game end, winner is null if stalemate
+		void onMoveTaken(Piece captured); // Called after a move is taken, passes captured piece as arg
 	}
 
 	// Keeps track of which side's turn it is
@@ -39,6 +41,9 @@ public class Game {
 
 	// The listener for game events
 	private GameEventListener eventListener;
+	
+	// Whether or not the game has started
+	private boolean inPlay;
 
 	/**
 	 * Initializes a new chess game
@@ -71,6 +76,10 @@ public class Game {
 	public Chess.Color getTurnColor() {
 		return this.turnColor;
 	}
+	
+	public boolean isInPlay() {
+		return inPlay;
+	}
 
 	public void startGame() {
 		// Initialize both sides' pieces
@@ -84,7 +93,32 @@ public class Game {
 			}
 		}
 		
+		this.inPlay = true;
+		
 		startNewTurn();
+		
+		if(eventListener != null) {
+			eventListener.onGameStarted();
+		}
+	}
+	
+	/**
+	 * Restarts a game that has already been started
+	 */
+	public void restartGame() {
+		clearGame();
+		startGame();
+	}
+	
+	/**
+	 * Resets game to unstarted state
+	 */
+	public void clearGame() {
+		this.turnColor = null;
+		this.inPlay = false;
+		this.board = new Board();
+		pieces.get(Chess.Color.WHITE).clear();
+		pieces.get(Chess.Color.BLACK).clear();
 	}
 
 	public void startNewTurn() {
@@ -103,6 +137,7 @@ public class Game {
 	 * Does whatever is necessary to end the game
 	 */
 	public void endGame(Chess.Color winner) {
+		clearGame();
 		if(eventListener != null) {
 			eventListener.onGameEnded(winner);
 		}
@@ -144,8 +179,7 @@ public class Game {
 	/**
 	 * Moves the specified piece to a new location
 	 * @param piece The piece to move
-	 * @param row The row to move to
-	 * @param col The col to move to
+	 * @param spot The destination spot on the board
 	 * @returns The piece captured by the executed move, or null if the space was unoccupied
 	 */
 	public Piece movePieceTo(Piece piece, Board.Spot spot) throws Chess.ChessError {
@@ -159,6 +193,10 @@ public class Game {
 			removePieceFromPlay(capturedPiece);
 
 		piece.moveTo(spot);
+		
+		if(eventListener != null) {
+			eventListener.onMoveTaken(capturedPiece);
+		}
 
 		return capturedPiece;
 	}

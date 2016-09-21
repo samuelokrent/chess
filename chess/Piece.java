@@ -127,7 +127,11 @@ public abstract class Piece {
 	}
 	
 	public String toString() {
-		return formatString(color.toString() + " " + getType());
+		return color.toString() + " " + getType();
+	}
+	
+	public String displayString() {
+		return formatString(toString());
 	}
 
 	/** 

@@ -1,6 +1,8 @@
 package chess;
 
 import chess.*;
+import chess.Chess.Color;
+
 import java.util.Random;
 import java.util.List;
 
@@ -40,6 +42,18 @@ public class RandomGame implements Game.GameEventListener {
 			System.out.println(game.getBoard().toString());
 			game.startNewTurn();
 		}
+	}
+
+	@Override
+	public void onGameStarted() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onMoveTaken(Piece captured) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
