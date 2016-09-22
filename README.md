@@ -7,13 +7,13 @@ This is a chess library, written in Java. It includes a GUI which allows two use
 ### Get the source code
 
 ```
-cd chess
 git clone https://github.com/samuelokrent/chess.git
 ```
 
 ### Build the project
 
 ```
+cd chess
 bash build.sh
 ```
 
