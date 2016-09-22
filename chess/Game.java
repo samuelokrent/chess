@@ -3,6 +3,7 @@ package chess;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Stack;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.lang.reflect.Constructor;
@@ -13,8 +14,8 @@ import java.lang.reflect.Constructor;
  * To initialize and play a game:
  *
  * Create a new Game object, and call startGame() on it
- * Before each turn, call startNewTurn()
  * To take a turn, call movePieceTo()
+ * After each turn, call startNewTurn()
  * onGameEnded() is called when the game is over
  */
 
@@ -28,6 +29,21 @@ public class Game {
 		void onGameStarted(); // Called on game start
 		void onGameEnded(Chess.Color winner); // Called on game end, winner is null if stalemate
 		void onMoveTaken(Piece captured); // Called after a move is taken, passes captured piece as arg
+		void onCheck(Chess.Color inCheckColor); // Called when inCheckColor becomes in check
+	}
+	
+	private class Move {
+		public Chess.Color playerColor;
+		public Board.Spot srcSpot, dstSpot;
+		public Piece movedPiece, capturedPiece;
+		public Move(Chess.Color playerColor, Board.Spot srcSpot, Board.Spot dstSpot,
+				Piece movedPiece, Piece capturedPiece) {
+			this.playerColor = playerColor;
+			this.srcSpot = srcSpot;
+			this.dstSpot = dstSpot;
+			this.movedPiece = movedPiece;
+			this.capturedPiece = capturedPiece;
+		}
 	}
 
 	// Keeps track of which side's turn it is
@@ -44,6 +60,8 @@ public class Game {
 	
 	// Whether or not the game has started
 	private boolean inPlay;
+	
+	private Stack<Move> moveStack;
 
 	/**
 	 * Initializes a new chess game
@@ -53,6 +71,7 @@ public class Game {
 		this.pieces = new HashMap<Chess.Color, List<Piece>>();
 		this.pieces.put(Chess.Color.WHITE, new ArrayList<Piece>());
 		this.pieces.put(Chess.Color.BLACK, new ArrayList<Piece>());
+		this.moveStack = new Stack<Move>();
 	}
 
 	/**
@@ -83,7 +102,7 @@ public class Game {
 
 	public void startGame() {
 		// Initialize both sides' pieces
-		for(Chess.RowConfiguration rowConfiguration : Chess.ROW_CONFIGURATIONS) {
+		for(Chess.RowConfiguration rowConfiguration : Chess.getRowConfigurations()) {
 			int row = rowConfiguration.row;
 			Class[] pieceClasses = rowConfiguration.pieces;
 			Chess.Color sideColor = rowConfiguration.sideColor;
@@ -119,6 +138,7 @@ public class Game {
 		this.board = new Board();
 		pieces.get(Chess.Color.WHITE).clear();
 		pieces.get(Chess.Color.BLACK).clear();
+		moveStack.clear();
 	}
 
 	public void startNewTurn() {
@@ -128,9 +148,14 @@ public class Game {
 		} else {
 			turnColor = Chess.opponentColor(turnColor);
 		}
-
-		if(isInCheckmate(turnColor)) endGame(Chess.opponentColor(turnColor));
-		else if(isInStalemate(turnColor)) endGame(null);
+		
+		if(isInCheckmate(turnColor)) {
+			endGame(Chess.opponentColor(turnColor));
+		} else if(isInCheck(turnColor) && eventListener != null) {
+			eventListener.onCheck(turnColor);
+		} else if(isInStalemate(turnColor)) {
+			endGame(null);
+		}
 	}
 
 	/**
@@ -192,13 +217,49 @@ public class Game {
 		if(capturedPiece != null)
 			removePieceFromPlay(capturedPiece);
 
+		Board.Spot oldSpot = piece.getSpot();
 		piece.moveTo(spot);
+		
+		moveStack.push(new Move(turnColor, oldSpot, spot, piece, capturedPiece));
 		
 		if(eventListener != null) {
 			eventListener.onMoveTaken(capturedPiece);
 		}
 
 		return capturedPiece;
+	}
+	
+	/**
+	 * Resets the game to before the last move was made by
+	 * playerColor, if possible
+	 * @param playerColor The color of the player who made the move to undo
+	 */
+	public void undoLastMoveBy(Chess.Color playerColor) {
+		if(moveStack.isEmpty()) return;
+		
+		Chess.Color lastMoveColor = moveStack.peek().playerColor;
+		
+		if(lastMoveColor == playerColor) {
+			
+			undoMove(moveStack.pop());
+			
+		} else if(moveStack.size() >= 2) {
+			
+			// If last move was not player color, need to undo 2 moves
+			undoMove(moveStack.pop());
+			undoMove(moveStack.pop());
+		}
+	}
+	
+	/**
+	 * Resets the game state to undo the given move
+	 * @param move The move to undo
+	 */
+	private void undoMove(Move move) {
+		move.movedPiece.moveTo(move.srcSpot);
+		if(move.capturedPiece != null)
+			addPiece(move.capturedPiece.getClass(), move.capturedPiece.getColor(), move.dstSpot);
+		this.turnColor = move.playerColor;
 	}
 
 	/**

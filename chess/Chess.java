@@ -62,6 +62,10 @@ public class Chess {
 	public static final Class[] FRONT_ROW = new Class[] {
 		Pawn.class, Pawn.class, Pawn.class, Pawn.class, Pawn.class, Pawn.class, Pawn.class, Pawn.class
 	};
+	
+	public static final Class[] CUSTOM_BACK_ROW = new Class[] {
+			MegaRook.class, Knight.class, Bishop.class, Queen.class, King.class, Bishop.class, FlipFlopper.class, Rook.class
+	};
 
 	/**
 	 * RowConfiguration: A class representing a starting configuration for a row of spots on the board
@@ -83,6 +87,22 @@ public class Chess {
 			this.pieces = pieces;
 		}
 	}
+	
+	private static boolean useCustom = false;
+	
+	public static void useCustomPieces(boolean useCustom) {
+		Chess.useCustom = useCustom;
+	}
+	
+	public static RowConfiguration[] getRowConfigurations() {
+		
+		if(useCustom) {
+			return CUSTOM_ROW_CONFIGURATIONS;
+			
+		} else {
+			return ROW_CONFIGURATIONS;
+		}
+	}
 
 	public static final RowConfiguration[] ROW_CONFIGURATIONS = {
 
@@ -91,6 +111,15 @@ public class Chess {
 
 		new RowConfiguration(Chess.Color.WHITE, 1, FRONT_ROW),
 		new RowConfiguration(Chess.Color.WHITE, 0, BACK_ROW)
+	};
+	
+	public static final RowConfiguration[] CUSTOM_ROW_CONFIGURATIONS = {
+
+			new RowConfiguration(Chess.Color.BLACK, 7, CUSTOM_BACK_ROW),
+			new RowConfiguration(Chess.Color.BLACK, 6, FRONT_ROW),
+
+			new RowConfiguration(Chess.Color.WHITE, 1, FRONT_ROW),
+			new RowConfiguration(Chess.Color.WHITE, 0, CUSTOM_BACK_ROW)
 	};
 
 	/** END BOARD CONFIGURATION SECTION **/

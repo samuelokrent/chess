@@ -55,5 +55,11 @@ public class RandomGame implements Game.GameEventListener {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void onCheck(Color inCheckColor) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

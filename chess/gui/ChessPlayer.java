@@ -28,6 +28,10 @@ public class ChessPlayer implements Game.GameEventListener, ActionListener, Mous
 	JButton restartButton;
 	JButton wForfeitButton;
 	JButton bForfeitButton;
+	JButton wUndoButton;
+	JButton bUndoButton;
+	
+	JCheckBox customCheckBox;
 	
 	JLabel turnLabel;
 	JLabel wScoreLabel;
@@ -64,6 +68,17 @@ public class ChessPlayer implements Game.GameEventListener, ActionListener, Mous
         bForfeitButton.setEnabled(false);
         bForfeitButton.addActionListener(this);
         
+        wUndoButton = new JButton("Undo Last White Move");
+        wUndoButton.setEnabled(false);
+        wUndoButton.addActionListener(this);
+        
+        bUndoButton = new JButton("Undo Last Black Move");
+        bUndoButton.setEnabled(false);
+        bUndoButton.addActionListener(this);
+        
+        customCheckBox = new JCheckBox("Use Custom Pieces");
+        customCheckBox.addActionListener(this);
+        
         turnLabel = new JLabel();
         turnLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
         wScoreLabel = new JLabel();
@@ -79,11 +94,16 @@ public class ChessPlayer implements Game.GameEventListener, ActionListener, Mous
         		.addGroup(layout.createSequentialGroup()
         				.addComponent(startButton)
         				.addComponent(restartButton)
-        				.addComponent(wForfeitButton)
-        				.addComponent(bForfeitButton)
+        				.addComponent(customCheckBox)
         				.addComponent(turnLabel)
         				.addComponent(wScoreLabel)
         				.addComponent(bScoreLabel)
+        				)
+        		.addGroup(layout.createSequentialGroup()
+        				.addComponent(wUndoButton)
+        				.addComponent(bUndoButton)
+        				.addComponent(wForfeitButton)
+        				.addComponent(bForfeitButton)
         				)
         		.addComponent(boardPanel)
         );
@@ -92,11 +112,16 @@ public class ChessPlayer implements Game.GameEventListener, ActionListener, Mous
         		.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
         				.addComponent(startButton)
         				.addComponent(restartButton)
-        				.addComponent(wForfeitButton)
-        				.addComponent(bForfeitButton)
+        				.addComponent(customCheckBox)
         				.addComponent(turnLabel)
         				.addComponent(wScoreLabel)
         				.addComponent(bScoreLabel)
+        				)
+        		.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+        				.addComponent(wUndoButton)
+        				.addComponent(bUndoButton)
+        				.addComponent(wForfeitButton)
+        				.addComponent(bForfeitButton)
         				)
         		.addComponent(boardPanel)
         );
@@ -116,6 +141,8 @@ public class ChessPlayer implements Game.GameEventListener, ActionListener, Mous
 		restartButton.setEnabled(true);
 		wForfeitButton.setEnabled(true);
 		bForfeitButton.setEnabled(true);
+		wUndoButton.setEnabled(true);
+		bUndoButton.setEnabled(true);
 		
 		updateText();
 		
@@ -126,8 +153,7 @@ public class ChessPlayer implements Game.GameEventListener, ActionListener, Mous
 	@Override
 	public void onMoveTaken(Piece captured) {
 		
-		boardPanel.revalidate();
-		boardPanel.repaint();
+		refreshBoard();
 		
 		if(captured != null)
 			JOptionPane.showMessageDialog(frame, captured.toString() + " Captured!");
@@ -135,6 +161,11 @@ public class ChessPlayer implements Game.GameEventListener, ActionListener, Mous
 		game.startNewTurn();
 		
 		updateText();
+	}
+	
+	@Override
+	public void onCheck(Chess.Color inCheckColor) {
+		JOptionPane.showMessageDialog(frame, inCheckColor.toString() + " is in check!");
 	}
 	
 	@Override
@@ -155,6 +186,8 @@ public class ChessPlayer implements Game.GameEventListener, ActionListener, Mous
 		restartButton.setEnabled(false);
 		wForfeitButton.setEnabled(false);
 		bForfeitButton.setEnabled(false);
+		wUndoButton.setEnabled(false);
+		bUndoButton.setEnabled(false);
 	}
 
 	@Override
@@ -180,6 +213,33 @@ public class ChessPlayer implements Game.GameEventListener, ActionListener, Mous
 			// BLACK FORFEIT CLICK
 			game.endGame(Chess.Color.WHITE);
 			
+		} else if(e.getSource() == wUndoButton) {
+			
+			// WHITE UNDO CLICK
+			game.undoLastMoveBy(Chess.Color.WHITE);
+			refreshBoard();
+			updateText();
+			
+		} else if(e.getSource() == bUndoButton) {
+			
+			// BLACK UNDO CLICK
+			game.undoLastMoveBy(Chess.Color.BLACK);
+			refreshBoard();
+			updateText();
+			
+		} else if(e.getSource() == customCheckBox) {
+			
+			// USE CUSTOM PIECES CHECK/UNCHECK
+			Chess.useCustomPieces(customCheckBox.isSelected());
+			
+			if(customCheckBox.isSelected()) {
+				JOptionPane.showMessageDialog(frame, "Custom pieces include a MegaRook (which looks like an\n" +
+												"upside-down Rook, and moves like a Rook that can jump other\n" +
+												"pieces), and a FlipFlopper (which looks like an\n" +
+												"upside-down Queen, and alternates between moving like a Queen\n" +
+												"and moving like a King).");
+			}
+			
 		}
 	}
 	
@@ -191,6 +251,14 @@ public class ChessPlayer implements Game.GameEventListener, ActionListener, Mous
 			turnLabel.setText("Turn: " + game.getTurnColor().toString());
 		wScoreLabel.setText("White: " + wScore);
 		bScoreLabel.setText("Black: " + bScore);
+	}
+	
+	/**
+	 * Updates the board to display current game configuration
+	 */
+	public void refreshBoard() {
+		boardPanel.revalidate();
+		boardPanel.repaint();
 	}
 	
 	/**
