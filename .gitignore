@@ -4,8 +4,6 @@ latex
 .svn
 ignoring.txt
 gui_test_plan
-chess/FlipFlopper.java
-chess/MegaRook.java
 *.class
 */*.class
 */*/*.class
