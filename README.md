@@ -2,4 +2,22 @@
 
 This is a chess library, written in Java. It includes a GUI which allows two users to play a game against one another.
 
-To launch the GUI, first compile all java files, then run `java chess.gui.ChessPlayer`.
+## Installing
+
+### Get the source code
+
+```
+git clone https://github.com/samuelokrent/chess.git
+```
+
+### Build the project
+
+```
+bash build.sh
+```
+
+### Run the GUI
+
+```
+bash run.sh
+```
